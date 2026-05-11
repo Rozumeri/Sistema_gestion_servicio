@@ -1,0 +1,78 @@
+[
+  {
+    "id": "ca650a23-ca39-4741-9a31-4d2097fec967",
+    "cliente": "Juan Pérez",
+    "servicio": {
+      "nombre": "Corte de Cabello",
+      "duracion": 30,
+      "costo": 15.0
+    },
+    "especialista": {
+      "cedula": "12345678",
+      "nombre": "María",
+      "apellido": "González",
+      "telefono": "555-0101",
+      "email": "maria@email.com"
+    },
+    "fecha": "2026-05-12",
+    "hora": "10:00:00",
+    "estado": "activa"
+  },
+  {
+    "id": "5d94678f-2363-41fa-970e-4b2cd593ab6d",
+    "cliente": "María García",
+    "servicio": {
+      "nombre": "Manicura",
+      "duracion": 45,
+      "costo": 25.0
+    },
+    "especialista": {
+      "cedula": "11223344",
+      "nombre": "Ana",
+      "apellido": "López",
+      "telefono": "555-0303",
+      "email": "ana@email.com"
+    },
+    "fecha": "2026-05-12",
+    "hora": "14:00:00",
+    "estado": "activa"
+  },
+  {
+    "id": "50297f71-aeda-4ce9-a9f5-37e96cc4fe5b",
+    "cliente": "Pedro López",
+    "servicio": {
+      "nombre": "Masaje Relajante",
+      "duracion": 60,
+      "costo": 40.0
+    },
+    "especialista": {
+      "cedula": "87654321",
+      "nombre": "Carlos",
+      "apellido": "Rodríguez",
+      "telefono": "555-0202",
+      "email": "carlos@email.com"
+    },
+    "fecha": "2026-05-13",
+    "hora": "16:00:00",
+    "estado": "activa"
+  },
+  {
+    "id": "cdbdd831-2b57-433b-ac9d-8e7b823b484a",
+    "cliente": "Juan Pérez",
+    "servicio": {
+      "nombre": "Manicura",
+      "duracion": 45,
+      "costo": 25.0
+    },
+    "especialista": {
+      "cedula": "11223344",
+      "nombre": "Ana",
+      "apellido": "López",
+      "telefono": "555-0303",
+      "email": "ana@email.com"
+    },
+    "fecha": "2026-05-15",
+    "hora": "11:00:00",
+    "estado": "activa"
+  }
+]

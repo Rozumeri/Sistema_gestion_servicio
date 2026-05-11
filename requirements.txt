@@ -1,0 +1,3 @@
+# Dependencias del proyecto
+# Actualmente no hay dependencias externas
+# Se usa solo la librería estándar de Python
