@@ -6,8 +6,9 @@ from services.reservas_service import ReservasService
 from services.servicios_service import ServiciosService
 from services.especialistas_service import EspecialistasService
 
-class AdminMenu:
-    """Menú para operaciones de administrador."""
+
+class EmpleadoMenu:
+    """Menú para operaciones del empleado."""
 
     def __init__(self, reservas_service: ReservasService, servicios_service: ServiciosService,
                  especialistas_service: EspecialistasService):
@@ -16,14 +17,14 @@ class AdminMenu:
         self.especialistas_service = especialistas_service
 
     def mostrar_menu(self) -> None:
-        """Muestra el menú del administrador."""
+        """Muestra las opciones del sistema."""
         while True:
-            print("\nMenú Administrador")
+            print("\nSistema de Gestión de Servicios")
             print("="*30)
             print("1. Gestionar Servicios")
             print("2. Gestionar Especialistas")
-            print("3. Ver Todas las Reservas")
-            print("4. Volver al Menú Principal")
+            print("3. Gestionar Reservas")
+            print("4. Salir")
             print("-"*30)
 
             opcion = input("Seleccione una opción: ").strip()
@@ -33,7 +34,7 @@ class AdminMenu:
             elif opcion == "2":
                 self._gestionar_especialistas()
             elif opcion == "3":
-                self._ver_todas_reservas()
+                self._gestionar_reservas()
             elif opcion == "4":
                 break
             else:
@@ -156,7 +157,7 @@ class AdminMenu:
         if self.servicios_service.eliminar_servicio(servicio.nombre):
             print("Servicio eliminado exitosamente.")
         else:
-            print("No se puede eliminar el servicio porque tiene reservas futuras.")
+            print("No se puede eliminar el servicio porque tiene reservas futuras o no existe.")
 
     def _gestionar_especialistas(self) -> None:
         """Submenú para gestión de especialistas."""
@@ -242,7 +243,8 @@ class AdminMenu:
         nuevo_telefono = input(f"Nuevo teléfono (actual: {especialista.telefono}) o Enter: ").strip() or especialista.telefono
         nuevo_email = input(f"Nuevo email (actual: {especialista.email}) o Enter: ").strip() or especialista.email
 
-        if self.especialistas_service.actualizar_especialista(especialista.cedula, nuevo_nombre, nuevo_apellido, nuevo_telefono, nuevo_email):
+        if self.especialistas_service.actualizar_especialista(especialista.cedula, nuevo_nombre,
+                                                               nuevo_apellido, nuevo_telefono, nuevo_email):
             print("Especialista actualizado exitosamente.")
         else:
             print("No se pudo actualizar el especialista.")
@@ -271,16 +273,213 @@ class AdminMenu:
         if self.especialistas_service.eliminar_especialista(especialista.cedula):
             print("Especialista eliminado exitosamente.")
         else:
-            print("No se puede eliminar el especialista porque tiene reservas futuras.")
+            print("No se puede eliminar el especialista porque tiene reservas futuras o no existe.")
 
-    def _ver_todas_reservas(self) -> None:
-        """Muestra todas las reservas del sistema."""
+    def _gestionar_reservas(self) -> None:
+        """Submenú para gestión de reservas."""
+        while True:
+            print("\nGestión de Reservas")
+            print("="*25)
+            print("1. Crear Reserva")
+            print("2. Ver Reservas")
+            print("3. Editar Reserva")
+            print("4. Cancelar Reserva")
+            print("5. Eliminar Reserva")
+            print("6. Volver")
+            print("-"*25)
+
+            opcion = input("Seleccione una opción: ").strip()
+
+            if opcion == "1":
+                self._crear_reserva()
+            elif opcion == "2":
+                self._ver_reservas()
+            elif opcion == "3":
+                self._editar_reserva()
+            elif opcion == "4":
+                self._cancelar_reserva()
+            elif opcion == "5":
+                self._eliminar_reserva()
+            elif opcion == "6":
+                break
+            else:
+                print("Opción no válida.")
+
+    def _crear_reserva(self) -> None:
+        """Crea una nueva reserva."""
+        cliente = input("Nombre del cliente: ").strip()
+        if not cliente:
+            print("Nombre no válido.")
+            return
+
+        servicios = self.servicios_service.obtener_servicios()
+        if not servicios:
+            print("No hay servicios disponibles.")
+            return
+
+        print("Servicios disponibles:")
+        for i, servicio in enumerate(servicios, 1):
+            print(f"{i}. {servicio}")
+
+        try:
+            opcion_servicio = int(input("Seleccione un servicio: ")) - 1
+            if opcion_servicio < 0 or opcion_servicio >= len(servicios):
+                print("Opción no válida.")
+                return
+            servicio = servicios[opcion_servicio]
+        except ValueError:
+            print("Entrada no válida.")
+            return
+
+        especialistas = self.especialistas_service.obtener_especialistas_por_servicio(servicio.nombre)
+        if not especialistas:
+            print("No hay especialistas disponibles para este servicio.")
+            return
+
+        print(f"\nEspecialistas disponibles para {servicio.nombre}:")
+        for i, especialista in enumerate(especialistas, 1):
+            print(f"{i}. {especialista}")
+
+        try:
+            opcion_especialista = int(input("Seleccione un especialista: ")) - 1
+            if opcion_especialista < 0 or opcion_especialista >= len(especialistas):
+                print("Opción no válida.")
+                return
+            especialista = especialistas[opcion_especialista]
+        except ValueError:
+            print("Entrada no válida.")
+            return
+
+        fecha_str = input("Ingrese fecha (YYYY-MM-DD): ").strip()
+        if not self.reservas_service.validaciones.validar_entrada_fecha(fecha_str):
+            print("Formato de fecha incorrecto. Use YYYY-MM-DD.")
+            return
+
+        hora_str = input("Ingrese hora (HH:MM): ").strip()
+        if not self.reservas_service.validaciones.validar_entrada_hora(hora_str):
+            print("Formato de hora incorrecto. Use HH:MM.")
+            return
+
+        try:
+            from datetime import date, time
+            fecha = date.fromisoformat(fecha_str)
+            hora = time.fromisoformat(hora_str)
+        except ValueError:
+            print("Fecha u hora inválida.")
+            return
+
+        reserva = self.reservas_service.crear_reserva(cliente, servicio, especialista, fecha, hora)
+        if reserva:
+            print(f"\nReserva creada exitosamente. ID: {reserva.id}")
+        else:
+            print("No se pudo crear la reserva. El horario no está disponible.")
+
+    def _ver_reservas(self) -> None:
+        """Muestra todas las reservas."""
         reservas = self.reservas_service.obtener_reservas()
         if not reservas:
             print("No hay reservas registradas.")
             return
 
-        print("\nTodas las reservas del sistema:")
+        print("\nReservas registradas:")
         print("-"*80)
         for reserva in reservas:
             print(reserva)
+
+    def _editar_reserva(self) -> None:
+        """Edita una reserva existente."""
+        reservas = self.reservas_service.obtener_reservas()
+        if not reservas:
+            print("No hay reservas para editar.")
+            return
+
+        print("Reservas disponibles:")
+        for i, reserva in enumerate(reservas, 1):
+            print(f"{i}. {reserva}")
+
+        try:
+            opcion = int(input("Seleccione reserva a editar: ")) - 1
+            if opcion < 0 or opcion >= len(reservas):
+                print("Opción no válida.")
+                return
+            reserva = reservas[opcion]
+        except ValueError:
+            print("Entrada no válida.")
+            return
+
+        fecha_str = input(f"Nueva fecha (actual: {reserva.fecha}) o Enter: ").strip()
+        hora_str = input(f"Nueva hora (actual: {reserva.hora}) o Enter: ").strip()
+
+        nueva_fecha = None
+        nueva_hora = None
+
+        if fecha_str:
+            if not self.reservas_service.validaciones.validar_entrada_fecha(fecha_str):
+                print("Formato de fecha incorrecto.")
+                return
+            from datetime import date
+            nueva_fecha = date.fromisoformat(fecha_str)
+
+        if hora_str:
+            if not self.reservas_service.validaciones.validar_entrada_hora(hora_str):
+                print("Formato de hora incorrecto.")
+                return
+            from datetime import time
+            nueva_hora = time.fromisoformat(hora_str)
+
+        if self.reservas_service.actualizar_reserva(reserva.id, nueva_fecha, nueva_hora):
+            print("Reserva actualizada exitosamente.")
+        else:
+            print("No se pudo actualizar la reserva. Verifique el horario.")
+
+    def _cancelar_reserva(self) -> None:
+        """Cancela una reserva existente."""
+        reservas = [r for r in self.reservas_service.obtener_reservas() if r.estado == "activa"]
+        if not reservas:
+            print("No hay reservas activas para cancelar.")
+            return
+
+        print("Reservas activas:")
+        for i, reserva in enumerate(reservas, 1):
+            print(f"{i}. {reserva}")
+
+        try:
+            opcion = int(input("Seleccione reserva a cancelar: ")) - 1
+            if opcion < 0 or opcion >= len(reservas):
+                print("Opción no válida.")
+                return
+            reserva = reservas[opcion]
+        except ValueError:
+            print("Entrada no válida.")
+            return
+
+        if self.reservas_service.cancelar_reserva(reserva.id):
+            print("Reserva cancelada exitosamente.")
+        else:
+            print("No se pudo cancelar la reserva.")
+
+    def _eliminar_reserva(self) -> None:
+        """Elimina una reserva del sistema."""
+        reservas = self.reservas_service.obtener_reservas()
+        if not reservas:
+            print("No hay reservas para eliminar.")
+            return
+
+        print("Reservas disponibles:")
+        for i, reserva in enumerate(reservas, 1):
+            print(f"{i}. {reserva}")
+
+        try:
+            opcion = int(input("Seleccione reserva a eliminar: ")) - 1
+            if opcion < 0 or opcion >= len(reservas):
+                print("Opción no válida.")
+                return
+            reserva = reservas[opcion]
+        except ValueError:
+            print("Entrada no válida.")
+            return
+
+        if self.reservas_service.eliminar_reserva(reserva.id):
+            print("Reserva eliminada exitosamente.")
+        else:
+            print("No se pudo eliminar la reserva.")

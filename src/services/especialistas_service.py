@@ -4,34 +4,38 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from models.especialista import Especialista
-from persistence.database import Database
 from services.validaciones_service import ValidacionesService
+from services.reservas_service import ReservasService
+
 
 class EspecialistasService:
     """Servicio para gestión de especialistas."""
 
-    def __init__(self, database: Database, validaciones_service: ValidacionesService):
-        self.database = database
+    def __init__(self, validaciones_service: ValidacionesService, reservas_service: ReservasService):
         self.validaciones = validaciones_service
+        self.reservas_service = reservas_service
+        self.especialistas: List[Especialista] = []
 
-    def crear_especialista(self, cedula: str, nombre: str, apellido: str, telefono: str, email: str) -> Especialista:
+    def crear_especialista(self, cedula: str, nombre: str, apellido: str,
+                           telefono: str, email: str) -> Especialista:
         """Crea un nuevo especialista."""
         especialista = Especialista(cedula, nombre, apellido, telefono, email)
-        self.database.guardar_especialista(especialista)
+        self.especialistas = [e for e in self.especialistas if e.cedula != especialista.cedula]
+        self.especialistas.append(especialista)
         return especialista
 
     def obtener_especialistas(self) -> List[Especialista]:
         """Obtiene todos los especialistas."""
-        return self.database.obtener_especialistas()
+        return list(self.especialistas)
 
     def obtener_especialista_por_cedula(self, cedula: str) -> Optional[Especialista]:
         """Obtiene un especialista por cédula."""
-        return self.database.obtener_especialista_por_cedula(cedula)
+        return next((e for e in self.especialistas if e.cedula == cedula), None)
 
     def actualizar_especialista(self, cedula: str, nombre: str = None, apellido: str = None,
-                               telefono: str = None, email: str = None) -> bool:
+                                telefono: str = None, email: str = None) -> bool:
         """Actualiza la información de un especialista."""
-        especialista = self.database.obtener_especialista_por_cedula(cedula)
+        especialista = self.obtener_especialista_por_cedula(cedula)
         if not especialista:
             return False
 
@@ -44,20 +48,21 @@ class EspecialistasService:
         if email:
             especialista.email = email
 
-        self.database.guardar_especialista(especialista)
         return True
 
     def eliminar_especialista(self, cedula: str) -> bool:
         """Elimina un especialista si no tiene reservas futuras."""
-        if not self.validaciones.validar_restricciones_eliminacion_especialista(cedula):
-            return False  # No se puede eliminar
+        if not self.validaciones.validar_restricciones_eliminacion_especialista(cedula,
+                                                                                self.reservas_service.obtener_reservas()):
+            return False
 
-        return self.database.eliminar_especialista(cedula)
+        especialista = self.obtener_especialista_por_cedula(cedula)
+        if not especialista:
+            return False
+
+        self.especialistas.remove(especialista)
+        return True
 
     def obtener_especialistas_por_servicio(self, servicio_nombre: str) -> List[Especialista]:
-        """
-        Obtiene especialistas que ofrecen un servicio específico.
-        Nota: Esta implementación simplificada retorna todos los especialistas.
-        En una versión más avanzada, habría una relación muchos-a-muchos.
-        """
+        """Obtiene especialistas que ofrecen un servicio específico."""
         return self.obtener_especialistas()
