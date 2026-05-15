@@ -1,3 +1,8 @@
+"""Interfaz de consola para interacción con el sistema.
+
+Provee el menú principal y los submenús para servicios, especialistas y reservas.
+"""
+
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -8,7 +13,7 @@ from services.especialistas_service import EspecialistasService
 
 
 class EmpleadoMenu:
-    """Menú para operaciones del empleado."""
+    """Encapsula los menús de interacción por consola del sistema."""
 
     def __init__(self, reservas_service: ReservasService, servicios_service: ServiciosService,
                  especialistas_service: EspecialistasService):
@@ -17,7 +22,7 @@ class EmpleadoMenu:
         self.especialistas_service = especialistas_service
 
     def mostrar_menu(self) -> None:
-        """Muestra las opciones del sistema."""
+        """Muestra el menú principal del sistema y gestiona la navegación."""
         while True:
             print("\nSistema de Gestión de Servicios")
             print("="*30)
@@ -41,7 +46,7 @@ class EmpleadoMenu:
                 print("Opción no válida. Intente nuevamente.")
 
     def _gestionar_servicios(self) -> None:
-        """Submenú para gestión de servicios."""
+        """Submenú para administrar servicios."""
         while True:
             print("\nGestión de Servicios")
             print("="*25)
@@ -68,7 +73,7 @@ class EmpleadoMenu:
                 print("Opción no válida.")
 
     def _agregar_servicio(self) -> None:
-        """Agrega un nuevo servicio."""
+        """Solicita datos y crea un nuevo servicio."""
         nombre = input("Nombre del servicio: ").strip()
         if not nombre:
             print("Nombre no válido.")
@@ -85,7 +90,7 @@ class EmpleadoMenu:
         print(f"Servicio '{servicio.nombre}' agregado exitosamente.")
 
     def _ver_servicios(self) -> None:
-        """Muestra todos los servicios."""
+        """Muestra una lista de todos los servicios registrados."""
         servicios = self.servicios_service.obtener_servicios()
         if not servicios:
             print("No hay servicios registrados.")
@@ -97,7 +102,7 @@ class EmpleadoMenu:
             print(servicio)
 
     def _editar_servicio(self) -> None:
-        """Edita un servicio existente."""
+        """Permite editar un servicio existente."""
         servicios = self.servicios_service.obtener_servicios()
         if not servicios:
             print("No hay servicios para editar.")
@@ -134,7 +139,7 @@ class EmpleadoMenu:
             print("No se pudo actualizar el servicio.")
 
     def _eliminar_servicio(self) -> None:
-        """Elimina un servicio."""
+        """Permite eliminar un servicio si no tiene reservas futuras."""
         servicios = self.servicios_service.obtener_servicios()
         if not servicios:
             print("No hay servicios para eliminar.")
@@ -160,7 +165,7 @@ class EmpleadoMenu:
             print("No se puede eliminar el servicio porque tiene reservas futuras o no existe.")
 
     def _gestionar_especialistas(self) -> None:
-        """Submenú para gestión de especialistas."""
+        """Submenú para gestionar especialistas."""
         while True:
             print("\nGestión de Especialistas")
             print("="*28)
@@ -187,7 +192,7 @@ class EmpleadoMenu:
                 print("Opción no válida.")
 
     def _agregar_especialista(self) -> None:
-        """Agrega un nuevo especialista."""
+        """Solicita datos y agrega un especialista nuevo."""
         cedula = input("Cédula: ").strip()
         if not cedula:
             print("Cédula no válida.")
@@ -206,7 +211,7 @@ class EmpleadoMenu:
         print(f"Especialista '{especialista.nombre} {especialista.apellido}' agregado exitosamente.")
 
     def _ver_especialistas(self) -> None:
-        """Muestra todos los especialistas."""
+        """Lista todos los especialistas disponibles."""
         especialistas = self.especialistas_service.obtener_especialistas()
         if not especialistas:
             print("No hay especialistas registrados.")
@@ -250,7 +255,7 @@ class EmpleadoMenu:
             print("No se pudo actualizar el especialista.")
 
     def _eliminar_especialista(self) -> None:
-        """Elimina un especialista."""
+        """Elimina un especialista si no tiene reservas futuras."""
         especialistas = self.especialistas_service.obtener_especialistas()
         if not especialistas:
             print("No hay especialistas para eliminar.")
@@ -276,7 +281,7 @@ class EmpleadoMenu:
             print("No se puede eliminar el especialista porque tiene reservas futuras o no existe.")
 
     def _gestionar_reservas(self) -> None:
-        """Submenú para gestión de reservas."""
+        """Submenú con acciones sobre reservas."""
         while True:
             print("\nGestión de Reservas")
             print("="*25)
@@ -306,7 +311,7 @@ class EmpleadoMenu:
                 print("Opción no válida.")
 
     def _crear_reserva(self) -> None:
-        """Crea una nueva reserva."""
+        """Solicita los datos de reserva y crea una nueva reserva."""
         cliente = input("Nombre del cliente: ").strip()
         if not cliente:
             print("Nombre no válido.")
@@ -375,7 +380,7 @@ class EmpleadoMenu:
             print("No se pudo crear la reserva. El horario no está disponible.")
 
     def _ver_reservas(self) -> None:
-        """Muestra todas las reservas."""
+        """Muestra todas las reservas existentes."""
         reservas = self.reservas_service.obtener_reservas()
         if not reservas:
             print("No hay reservas registradas.")
@@ -387,7 +392,7 @@ class EmpleadoMenu:
             print(reserva)
 
     def _editar_reserva(self) -> None:
-        """Edita una reserva existente."""
+        """Permite modificar fecha y/o hora de una reserva activa."""
         reservas = self.reservas_service.obtener_reservas()
         if not reservas:
             print("No hay reservas para editar.")
@@ -433,7 +438,7 @@ class EmpleadoMenu:
             print("No se pudo actualizar la reserva. Verifique el horario.")
 
     def _cancelar_reserva(self) -> None:
-        """Cancela una reserva existente."""
+        """Marca una reserva activa como cancelada."""
         reservas = [r for r in self.reservas_service.obtener_reservas() if r.estado == "activa"]
         if not reservas:
             print("No hay reservas activas para cancelar.")
@@ -459,7 +464,7 @@ class EmpleadoMenu:
             print("No se pudo cancelar la reserva.")
 
     def _eliminar_reserva(self) -> None:
-        """Elimina una reserva del sistema."""
+        """Elimina una reserva de la sesión actual."""
         reservas = self.reservas_service.obtener_reservas()
         if not reservas:
             print("No hay reservas para eliminar.")

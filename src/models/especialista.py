@@ -1,9 +1,10 @@
-from typing import List
-from datetime import date, time
-from uuid import uuid4
+"""Modelo de Especialista.
+
+Define la entidad especialista que ofrece los servicios en el sistema.
+"""
 
 class Especialista:
-    """Clase que representa a un especialista en el sistema."""
+    """Representa a un especialista que atiende reservas."""
 
     def __init__(self, cedula: str, nombre: str, apellido: str, telefono: str, email: str):
         self.cedula = cedula
@@ -16,7 +17,11 @@ class Especialista:
         return f"{self.nombre} {self.apellido} (Cédula: {self.cedula})"
 
     def to_dict(self) -> dict:
-        """Convierte el objeto a diccionario para persistencia."""
+        """Convierte el especialista en un diccionario.
+
+        Aunque el sistema actual no persiste en disco, este método sirve para
+        posibles futuras extensiones y mantiene consistencia con el diseño de modelos.
+        """
         return {
             'cedula': self.cedula,
             'nombre': self.nombre,
@@ -27,7 +32,7 @@ class Especialista:
 
     @classmethod
     def from_dict(cls, data: dict) -> 'Especialista':
-        """Crea un objeto desde un diccionario."""
+        """Crea una instancia de especialista desde un diccionario."""
         return cls(
             cedula=data['cedula'],
             nombre=data['nombre'],

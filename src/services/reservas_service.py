@@ -1,3 +1,8 @@
+"""Servicio para gestión de reservas en la sesión actual.
+
+Este módulo mantiene las reservas en memoria y ofrece operaciones CRUD.
+"""
+
 from typing import List, Optional
 from datetime import date, time
 import sys
@@ -9,14 +14,14 @@ from services.validaciones_service import ValidacionesService
 
 
 class ReservasService:
-    """Servicio para gestión de reservas."""
+    """Gestiona las reservas del sistema en memoria."""
 
     def __init__(self, validaciones_service: ValidacionesService):
         self.validaciones = validaciones_service
         self.reservas: List[Reserva] = []
 
     def crear_reserva(self, cliente: str, servicio, especialista, fecha: date, hora: time) -> Optional[Reserva]:
-        """Crea una nueva reserva si el horario está disponible."""
+        """Crea una reserva si el horario está disponible."""
         fecha_str = fecha.isoformat()
         hora_str = hora.strftime('%H:%M')
 
@@ -29,19 +34,19 @@ class ReservasService:
         return reserva
 
     def obtener_reservas(self) -> List[Reserva]:
-        """Obtiene todas las reservas."""
+        """Devuelve todas las reservas registradas en la sesión."""
         return list(self.reservas)
 
     def obtener_reservas_por_cliente(self, cliente: str) -> List[Reserva]:
-        """Obtiene reservas de un cliente específico."""
+        """Filtra reservas por nombre de cliente."""
         return [r for r in self.reservas if r.cliente == cliente]
 
     def obtener_reserva_por_id(self, id: str) -> Optional[Reserva]:
-        """Obtiene una reserva por ID."""
+        """Busca una reserva por su identificador único."""
         return next((r for r in self.reservas if r.id == id), None)
 
     def actualizar_reserva(self, id: str, nueva_fecha: date = None, nueva_hora: time = None) -> bool:
-        """Actualiza fecha y hora de una reserva."""
+        """Actualiza fecha y/o hora de una reserva activa."""
         reserva = self.obtener_reserva_por_id(id)
         if not reserva or reserva.estado != "activa":
             return False
@@ -60,7 +65,7 @@ class ReservasService:
         return True
 
     def cancelar_reserva(self, id: str) -> bool:
-        """Cancela una reserva."""
+        """Marca una reserva como cancelada sin eliminarla."""
         reserva = self.obtener_reserva_por_id(id)
         if not reserva or reserva.estado != "activa":
             return False
@@ -69,7 +74,7 @@ class ReservasService:
         return True
 
     def eliminar_reserva(self, id: str) -> bool:
-        """Elimina una reserva del sistema."""
+        """Elimina una reserva de la lista de reservas."""
         reserva = self.obtener_reserva_por_id(id)
         if not reserva:
             return False
@@ -78,5 +83,5 @@ class ReservasService:
         return True
 
     def obtener_reservas_activas_por_especialista(self, cedula: str) -> List[Reserva]:
-        """Obtiene reservas activas de un especialista."""
+        """Obtiene reservas activas para un especialista específico."""
         return [r for r in self.reservas if r.especialista.cedula == cedula and r.estado == "activa"]

@@ -1,12 +1,17 @@
+"""Servicio de validaciones de negocio.
+
+Contiene las reglas que controlan conflictos de horarios y restricciones de eliminación.
+"""
+
 from datetime import datetime, timedelta
 
 
 class ValidacionesService:
-    """Servicio para validaciones de negocio."""
+    """Encapsula validaciones comunes del dominio."""
 
     def validar_disponibilidad(self, especialista, fecha: str, hora: str, duracion_minutos: int,
                                reservas: list, reserva_id: str = None) -> bool:
-        """Valida si un horario está disponible para un especialista."""
+        """Verifica si un especialista está disponible en un horario dado."""
         try:
             fecha_dt = datetime.strptime(fecha, '%Y-%m-%d').date()
             hora_dt = datetime.strptime(hora, '%H:%M').time()
@@ -25,14 +30,13 @@ class ValidacionesService:
         for reserva in reservas_especialista:
             reserva_inicio = datetime.combine(reserva.fecha, reserva.hora)
             reserva_fin = reserva_inicio + timedelta(minutes=reserva.servicio.duracion)
-
             if inicio < reserva_fin and fin > reserva_inicio:
                 return False
 
         return True
 
     def validar_restricciones_eliminacion_especialista(self, cedula: str, reservas: list) -> bool:
-        """Valida si se puede eliminar un especialista."""
+        """Verifica si un especialista puede eliminarse sin reservas futuras."""
         ahora = datetime.now()
 
         for reserva in reservas:
@@ -44,7 +48,7 @@ class ValidacionesService:
         return True
 
     def validar_restricciones_eliminacion_servicio(self, nombre: str, reservas: list) -> bool:
-        """Valida si se puede eliminar un servicio."""
+        """Verifica si un servicio puede eliminarse sin reservas futuras."""
         ahora = datetime.now()
 
         for reserva in reservas:
@@ -56,7 +60,7 @@ class ValidacionesService:
         return True
 
     def validar_entrada_fecha(self, fecha_str: str) -> bool:
-        """Valida que una fecha tenga el formato correcto YYYY-MM-DD."""
+        """Valida que la cadena de fecha sea YYYY-MM-DD."""
         try:
             datetime.strptime(fecha_str, '%Y-%m-%d')
             return True
@@ -64,7 +68,7 @@ class ValidacionesService:
             return False
 
     def validar_entrada_hora(self, hora_str: str) -> bool:
-        """Valida que una hora tenga el formato correcto HH:MM."""
+        """Valida que la cadena de hora sea HH:MM."""
         try:
             datetime.strptime(hora_str, '%H:%M')
             return True

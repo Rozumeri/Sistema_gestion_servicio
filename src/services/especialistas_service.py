@@ -1,3 +1,8 @@
+"""Servicio para gestión de especialistas en la sesión actual.
+
+Mantiene especialistas en memoria y controla operaciones CRUD básicas.
+"""
+
 from typing import List, Optional
 import sys
 import os
@@ -9,7 +14,7 @@ from services.reservas_service import ReservasService
 
 
 class EspecialistasService:
-    """Servicio para gestión de especialistas."""
+    """Gestiona a los especialistas disponibles en el sistema."""
 
     def __init__(self, validaciones_service: ValidacionesService, reservas_service: ReservasService):
         self.validaciones = validaciones_service
@@ -18,23 +23,23 @@ class EspecialistasService:
 
     def crear_especialista(self, cedula: str, nombre: str, apellido: str,
                            telefono: str, email: str) -> Especialista:
-        """Crea un nuevo especialista."""
+        """Crea o sobrescribe un especialista con la misma cédula."""
         especialista = Especialista(cedula, nombre, apellido, telefono, email)
         self.especialistas = [e for e in self.especialistas if e.cedula != especialista.cedula]
         self.especialistas.append(especialista)
         return especialista
 
     def obtener_especialistas(self) -> List[Especialista]:
-        """Obtiene todos los especialistas."""
+        """Devuelve todos los especialistas registrados en memoria."""
         return list(self.especialistas)
 
     def obtener_especialista_por_cedula(self, cedula: str) -> Optional[Especialista]:
-        """Obtiene un especialista por cédula."""
+        """Busca un especialista por cédula."""
         return next((e for e in self.especialistas if e.cedula == cedula), None)
 
     def actualizar_especialista(self, cedula: str, nombre: str = None, apellido: str = None,
                                 telefono: str = None, email: str = None) -> bool:
-        """Actualiza la información de un especialista."""
+        """Actualiza los datos de un especialista existente."""
         especialista = self.obtener_especialista_por_cedula(cedula)
         if not especialista:
             return False
@@ -64,5 +69,8 @@ class EspecialistasService:
         return True
 
     def obtener_especialistas_por_servicio(self, servicio_nombre: str) -> List[Especialista]:
-        """Obtiene especialistas que ofrecen un servicio específico."""
+        """Devuelve todos los especialistas disponibles.
+
+        La versión actual no modela relaciones directas entre especialistas y servicios.
+        """
         return self.obtener_especialistas()

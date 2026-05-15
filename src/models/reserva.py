@@ -1,10 +1,17 @@
+"""Modelo de Reserva.
+
+Define la entidad reserva y contiene la relación con cliente, servicio y especialista.
+"""
+
 from datetime import date, time
 from uuid import uuid4
+
 from .especialista import Especialista
 from .servicio import Servicio
 
+
 class Reserva:
-    """Clase que representa una reserva en el sistema."""
+    """Representa una reserva en el sistema."""
 
     def __init__(self, cliente: str, servicio: Servicio, especialista: Especialista,
                  fecha: date, hora: time, id: str = None, estado: str = "activa"):
@@ -14,14 +21,18 @@ class Reserva:
         self.especialista = especialista
         self.fecha = fecha
         self.hora = hora
-        self.estado = estado  # "activa", "cancelada"
+        self.estado = estado
 
     def __str__(self) -> str:
         return (f"Reserva {self.id}: {self.servicio.nombre} con {self.especialista.nombre} "
                 f"{self.especialista.apellido} - {self.fecha} {self.hora} ({self.estado})")
 
     def to_dict(self) -> dict:
-        """Convierte el objeto a diccionario para persistencia."""
+        """Convierte la reserva a un diccionario.
+
+        Este método conserva el formato de serialización, aunque actualmente no se
+        utiliza persistencia en disco.
+        """
         return {
             'id': self.id,
             'cliente': self.cliente,
@@ -34,7 +45,7 @@ class Reserva:
 
     @classmethod
     def from_dict(cls, data: dict) -> 'Reserva':
-        """Crea un objeto desde un diccionario."""
+        """Crea una reserva desde un diccionario."""
         servicio = Servicio.from_dict(data['servicio'])
         especialista = Especialista.from_dict(data['especialista'])
         return cls(

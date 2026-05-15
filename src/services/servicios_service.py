@@ -1,3 +1,8 @@
+"""Servicio para gestión de servicios en la sesión actual.
+
+Mantiene servicios en memoria y controla operaciones CRUD básicas.
+"""
+
 from typing import List, Optional
 import sys
 import os
@@ -9,7 +14,7 @@ from services.reservas_service import ReservasService
 
 
 class ServiciosService:
-    """Servicio para gestión de servicios."""
+    """Gestiona los servicios disponibles para reserva."""
 
     def __init__(self, validaciones_service: ValidacionesService, reservas_service: ReservasService):
         self.validaciones = validaciones_service
@@ -17,23 +22,23 @@ class ServiciosService:
         self.servicios: List[Servicio] = []
 
     def crear_servicio(self, nombre: str, duracion: int, costo: float) -> Servicio:
-        """Crea un nuevo servicio."""
+        """Crea o sobrescribe un servicio con el mismo nombre."""
         servicio = Servicio(nombre, duracion, costo)
         self.servicios = [s for s in self.servicios if s.nombre != servicio.nombre]
         self.servicios.append(servicio)
         return servicio
 
     def obtener_servicios(self) -> List[Servicio]:
-        """Obtiene todos los servicios."""
+        """Devuelve todos los servicios registrados en memoria."""
         return list(self.servicios)
 
     def obtener_servicio_por_nombre(self, nombre: str) -> Optional[Servicio]:
-        """Obtiene un servicio por nombre."""
+        """Busca un servicio por su nombre."""
         return next((s for s in self.servicios if s.nombre == nombre), None)
 
     def actualizar_servicio(self, nombre: str, nuevo_nombre: str = None,
                             duracion: int = None, costo: float = None) -> bool:
-        """Actualiza la información de un servicio."""
+        """Modifica los atributos de un servicio existente."""
         servicio = self.obtener_servicio_por_nombre(nombre)
         if not servicio:
             return False
@@ -48,7 +53,7 @@ class ServiciosService:
         return True
 
     def eliminar_servicio(self, nombre: str) -> bool:
-        """Elimina un servicio si no tiene reservas futuras."""
+        """Elimina un servicio si no existen reservas futuras asociadas."""
         if not self.validaciones.validar_restricciones_eliminacion_servicio(nombre,
                                                                             self.reservas_service.obtener_reservas()):
             return False

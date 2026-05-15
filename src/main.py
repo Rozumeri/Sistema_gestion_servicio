@@ -16,7 +16,13 @@ from ui.admin_menu import EmpleadoMenu
 
 
 def main():
-    """Función principal que inicializa y ejecuta el sistema."""
+    """Inicializa los servicios y ejecuta el menú principal.
+
+    La función principal crea las instancias de los servicios de validación,
+    reservas, servicios y especialistas. Después, arma el menú del sistema y
+    arranca la interacción por consola.
+    """
+
     validaciones_service = ValidacionesService()
     reservas_service = ReservasService(validaciones_service)
     servicios_service = ServiciosService(validaciones_service, reservas_service)
